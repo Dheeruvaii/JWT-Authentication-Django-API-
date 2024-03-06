@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 class UserManager(BaseUserManager):
 
-    # use_in_migration = True
+    use_in_migration = True
 
     def create_user(self, email, password=None, **extra_fields):
         if not email:
