@@ -102,7 +102,15 @@ DATABASES = {
     }
 }
 
+from datetime import timedelta
 
+"""
+for storing access and refresh token for specific period of time
+"""
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+  }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
