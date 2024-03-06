@@ -1,5 +1,5 @@
 from django.urls import path,include
-from .views import RegisterViewSet
+from .views import RegisterViewSet,LoginViewSet
 from rest_framework.routers import DefaultRouter
 
 from rest_framework_simplejwt.views import (
@@ -9,6 +9,7 @@ from rest_framework_simplejwt.views import (
 
 router = DefaultRouter()
 router.register(r'Users', RegisterViewSet, basename='Users-lists')
+router.register(r'login', LoginViewSet, basename='login')
 
 urlpatterns = [
     path('',include(router.urls)),

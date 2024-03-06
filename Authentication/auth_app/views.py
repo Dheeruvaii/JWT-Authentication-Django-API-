@@ -4,10 +4,14 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializer import UserSerializer
+from .serializer import UserSerializer,CustomTokenObtainPairSerializer
 from rest_framework.response import Response
 from rest_framework import viewsets
 from .models import *
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+
 
 
 # view for registering users
@@ -68,7 +72,15 @@ class RegisterViewSet(viewsets.ModelViewSet):
 
         })
     
+class LoginViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
 
+    def create(self, request):
+        serializer = CustomTokenObtainPairSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # def obtain_token_pair(self,request):
     #     view=TokenObtainPairView.as_view()
