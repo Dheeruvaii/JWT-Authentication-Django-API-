@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'auth_app',
+    'UserProfile',
     'rest_framework',
     'rest_framework_simplejwt',
      'django_filters',
