@@ -29,9 +29,8 @@ class UserManager(BaseUserManager):
 
 
 class UserData(AbstractUser):
-
     username = None
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100, unique=True)
     email = models.EmailField(max_length=100, unique=True)
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -39,6 +38,7 @@ class UserData(AbstractUser):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    generated_uuid = models.UUIDField(default=uuid.uuid4, editable=False) 
     
     objects = UserManager()
     
@@ -48,16 +48,19 @@ class UserData(AbstractUser):
     def __str__(self):
         return self.name
     
+    
 
 
 class UserProfile(models.Model):
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    generated_uuid = uuid.uuid4()  
+    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(UserData, on_delete=models.CASCADE, related_name='profile')
     first_name = models.CharField(max_length=50, unique=False)
     last_name = models.CharField(max_length=50, unique=False)
     phone_number = models.CharField(max_length=10, unique=True, null=False, blank=False)
     age = models.PositiveIntegerField(null=False, blank=False)
+    generated_uuid = models.UUIDField(default=uuid.uuid4, editable=False) 
     GENDER_CHOICES = (
         ('M', 'Male'),
         ('F', 'Female'),

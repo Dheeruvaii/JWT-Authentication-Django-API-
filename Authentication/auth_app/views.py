@@ -4,7 +4,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializer import UserSerializer,CustomTokenObtainPairSerializer
+from .serializer import UserRegisterSerializer,CustomTokenObtainPairSerializer
 from rest_framework.response import Response
 from rest_framework import viewsets
 from .models import *
@@ -18,14 +18,15 @@ from rest_framework.permissions import AllowAny ,IsAuthenticated
 
 class RegisterViewSet(viewsets.ModelViewSet):
     queryset=UserData.objects.all()
-    serializer_class=UserSerializer
+    serializer_class=UserRegisterSerializer
+    permission_classes = (AllowAny,)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         response_data={
-            'message':" object created successfully",
+            'message':" User Registerd successfully",
             'data':serializer.data
         }
         return Response(response_data, status=201)
@@ -37,7 +38,7 @@ class RegisterViewSet(viewsets.ModelViewSet):
             
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response({
-                 'message':"Users - lists",
+                 'message':"User-Registerd-Lists",
                 # 'message': "paginated tag-list",
                 'data': serializer.data
             })
