@@ -17,7 +17,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         response_data={
-            'message':" object created successfully",
+            'message':" UserProfiles created successfully",
             'data':serializer.data
         }
         return Response(response_data, status=201)
@@ -29,7 +29,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
             
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response({
-                 'message':"Users - lists",
+                 'message':"UserProfile - lists",
                 # 'message': "paginated tag-list",
                 'data': serializer.data
             })
