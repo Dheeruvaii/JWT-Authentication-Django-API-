@@ -2,31 +2,20 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import UserData
 
-# class UserProfileSerializer(serializers.ModelSerializer):
-
-#     class Meta:
-#         model = UserProfile
-#         fields = ('first_name', 'last_name', 'phone_number', 'age', 'gender')
-
-class UserRegisterSerializer(serializers.ModelSerializer):
-    
-    # profile = UserProfileSerializer(required=False)
+class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserData
-        fields = ['email','password']
-        # fields = ('email', 'password', 'profile')
-        # extra_kwargs = {'password': {'write_only': True}}
+        fields = ["id", "email", "name", "password"]
 
+    def create(self, validated_data):
+        user = UserData.objects.create(email=validated_data['email'],
+                                       name=validated_data['name']
+                                         )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user 
     
-    # def create(self, validated_data):
-    #     profile_data = validated_data.pop('profile')
-    #     user = UserData.objects.create(**validated_data)
-    #     UserProfile.objects.create(user=user, **profile_data)
-    #     return user
-    
-   
-
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
