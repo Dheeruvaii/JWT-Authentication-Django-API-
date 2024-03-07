@@ -15,7 +15,6 @@ from rest_framework.permissions import AllowAny ,IsAuthenticated
 
 
 
-# view for registering users
 
 class RegisterViewSet(viewsets.ModelViewSet):
     queryset=UserData.objects.all()
@@ -38,7 +37,7 @@ class RegisterViewSet(viewsets.ModelViewSet):
             
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response({
-                 'message':"Doctor lists",
+                 'message':"Users - lists",
                 # 'message': "paginated tag-list",
                 'data': serializer.data
             })
