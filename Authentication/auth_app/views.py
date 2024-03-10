@@ -14,8 +14,6 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny ,IsAuthenticated
 
 
-
-
 class RegisterViewSet(viewsets.ModelViewSet):
     queryset=UserData.objects.all()
     serializer_class=UserSerializer
@@ -93,6 +91,10 @@ class LogoutView(viewsets.ViewSet):
 
 
 
+    """
+
+    further code will  be need  
+
 # class LogoutViewSet(viewsets.ViewSet):
 #     permission_classes = [IsAuthenticated]
 
@@ -109,7 +111,9 @@ class LogoutView(viewsets.ViewSet):
 #             return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
 #         except Exception as e:
 #             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+    
+
+           
     # def obtain_token_pair(self,request):
     #     view=TokenObtainPairView.as_view()
     #     response=view(request=request)
@@ -124,3 +128,6 @@ class LogoutView(viewsets.ViewSet):
         
     #     else:
     #         return Response("token is required")
+
+    
+    """
