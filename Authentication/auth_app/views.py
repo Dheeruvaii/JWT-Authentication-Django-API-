@@ -4,7 +4,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializer import UserSerializer,CustomTokenObtainPairSerializer
+from .serializer import UserSerializer,CustomTokenObtainPairSerializer,LogoutSerializer
 from rest_framework.response import Response
 from rest_framework import viewsets
 from .models import *
@@ -82,12 +82,14 @@ class LoginViewSet(viewsets.ViewSet):
         
 
 class LogoutView(viewsets.ViewSet):
+    serializer_class=LogoutSerializer
     permission_classes=[IsAuthenticated]
-    def create(self,request):
-            refresh_token=request.get(request)
-            token=RefreshToken(refresh_token)
-            token.blacklist()
-            return token
+
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 
