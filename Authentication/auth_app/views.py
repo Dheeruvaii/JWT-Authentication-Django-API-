@@ -1,5 +1,6 @@
 
 # Create your views here.
+from rest_framework import generics,status,views,permissions
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -83,15 +84,14 @@ class LoginViewSet(viewsets.ViewSet):
 
 class LogoutView(viewsets.ViewSet):
     serializer_class=LogoutSerializer
-    permission_classes=[IsAuthenticated]
+    # permission_classes = (permissions.IsAuthenticated,)
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        token = RefreshToken(request.data.get('refresh_token'))
+        token.blacklist()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 
     """
 
