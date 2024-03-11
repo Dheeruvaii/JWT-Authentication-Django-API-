@@ -33,7 +33,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data = super().validate(attrs)
         return data
     
-    
+
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField(max_length=255)
 
@@ -43,11 +43,13 @@ class LogoutSerializer(serializers.Serializer):
 
     def save(self, **kwargs):
         try:
-            RefreshToken(self.token).blacklist()
+            RefreshToken(self.token)
         except TokenError:
             serializers.ValidationError({
                 'status': 'failed',
                 'message': 'Bad refresh token'
             })
+
+
 
 

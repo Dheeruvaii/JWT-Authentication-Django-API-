@@ -19,6 +19,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
 from django.middleware import csrf
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 
 
 class RegisterViewSet(viewsets.ModelViewSet):
@@ -110,21 +113,24 @@ class LoginAPIView(APIView):
             # If serializer validation fails, return the errors
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
+class LogoutAPIView(APIView):
+    def post(self, request):
+        serializer = LogoutSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                # Extract the refresh token from the validated data
+                refresh_token = serializer.validated_data['refresh']
+                
+                # Blacklist the refresh token
+                token = RefreshToken(refresh_token)
+                # token.blacklist()
 
+                return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
+            except TokenError:
+                return Response({'message': 'Bad refresh token'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-class LogoutView(viewsets.ViewSet):
-    serializer_class=LogoutSerializer
-    # permission_classes = (permissions.IsAuthenticated,)
-
-    def create(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        token = RefreshToken(request.data.get('refresh_token'))
-        # token.blacklist()
-        return Response({'message': 'User logged out successfully'},status=status.HTTP_204_NO_CONTENT)
-    
-
-    
 
 """
     This class is for login and also set the cookies in user browser
