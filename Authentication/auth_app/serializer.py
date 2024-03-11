@@ -30,22 +30,17 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
     
 class LogoutSerializer(serializers.Serializer):
-    refresh = serializers.CharField()
+    refresh = serializers.CharField(max_length=255)
 
     def validate(self, attrs):
         self.token = attrs['refresh']
         return attrs
 
-    def save(self):
+    def save(self, **kwargs):
         try:
-            # First, blacklist the refresh token
-            refresh_token = RefreshToken(self.token)
-            refresh_token.blacklist()
-
-            # If you also want to blacklist related access tokens
-            OutstandingToken.objects.filter(token=refresh_token.access_token).delete()
-
-            # Optionally, you can store the blacklisted token
-            BlacklistedToken.objects.create(token=self.token)
+            RefreshToken(self.token).blacklist()
         except TokenError:
-            self.fail('bad_token')  
+            serializers.ValidationError({
+                'status': 'failed',
+                'message': 'Bad refresh token'
+            })
