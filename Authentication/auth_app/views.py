@@ -90,7 +90,46 @@ class LogoutView(viewsets.ViewSet):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         token = RefreshToken(request.data.get('refresh_token'))
-        token.blacklist()
+        # token.blacklist()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-   
+    """
+
+    further code will  be need  
+
+# class LogoutViewSet(viewsets.ViewSet):
+#     permission_classes = [IsAuthenticated]
+
+#     @action(detail=False, methods=['post'])
+#     def logout(self, request):
+#         refresh_token = request.data.get("refresh_token")
+        
+#         if not refresh_token:
+#             return Response({"detail": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+#         try:
+#             token = RefreshToken(refresh_token)
+#             token.blacklist()
+#             return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
+#         except Exception as e:
+#             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+           
+    # def obtain_token_pair(self,request):
+    #     view=TokenObtainPairView.as_view()
+    #     response=view(request=request)
+    #     return response
+    
+    # def refresh_token(self,request):
+    #     refresh=request.data.get('refresh')
+    #     if refresh:
+    #         refresh_token=RefreshToken(request=request)
+    #         token={'access':str(refresh_token.access_token)}
+    #         return Response(token)
+        
+    #     else:
+    #         return Response("token is required")
+
+    
+    """
