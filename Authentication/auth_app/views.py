@@ -15,6 +15,11 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny ,IsAuthenticated
 from rest_framework.decorators import api_view
 from .serializer import CookieSerializer
+from rest_framework.viewsets import ViewSet
+from rest_framework.response import Response
+from rest_framework import status
+from django.conf import settings
+from django.middleware import csrf
 
 
 class RegisterViewSet(viewsets.ModelViewSet):
@@ -73,16 +78,49 @@ class RegisterViewSet(viewsets.ModelViewSet):
 
         })
     
-class LoginViewSet(viewsets.ViewSet):
-    permission_classes = [AllowAny]
+
+
+
+class LoginViewSet(ViewSet):
+    """
+    This class is for login and also sets the cookies in the user's browser
+    """
+    serializer_class = CustomTokenObtainPairSerializer
 
     def create(self, request):
-        serializer = CustomTokenObtainPairSerializer(data=request.data)
-        if serializer.is_valid():
-            return Response(serializer.validated_data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            response = Response()
+            data = serializer.data
+
+            response.set_cookie(
+                key='REFRESH_TOKEN',
+                value=(data['refresh']),
+                domain='.localhost.com',
+                samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+                expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+                secure=False,
+                httponly=True,
+            )
+            response.set_cookie(
+                key='ACCESS_TOKEN',
+                value=(data['access']),
+                domain='.localhost.com',
+                samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+                expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+                secure=False,
+                httponly=True,
+            )
+            response['X-CSRFToken'] = csrf.get_token(request)
+            response.data = {
+                'status': 'successful',
+                'data': data,
+                'message': 'Login successful. Take token from cookies'
+            }
+            return response
+
+        return Response(data=serializer.data, status=status.HTTP_400_BAD_REQUEST)
+
 
 class LogoutView(viewsets.ViewSet):
     serializer_class=LogoutSerializer
@@ -95,11 +133,3 @@ class LogoutView(viewsets.ViewSet):
         # token.blacklist()
         return Response({'message': 'User logged out successfully'},status=status.HTTP_204_NO_CONTENT)
 
-
-@api_view(['GET'])
-def get_tokens(request):
-    serializer = CookieSerializer(data={'ACCESS_TOKEN': request.COOKIES.get('ACCESS_TOKEN'),
-                                        'REFRESH_TOKEN': request.COOKIES.get('REFRESH_TOKEN')})
-    serializer.is_valid(raise_exception=True)
-    tokens_data = serializer.validated_data
-    return Response(tokens_data)

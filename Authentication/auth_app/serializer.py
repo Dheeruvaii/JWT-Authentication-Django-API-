@@ -46,17 +46,3 @@ class LogoutSerializer(serializers.Serializer):
             })
 
 
-class CookieSerializer(serializers.Serializer):
-    ACCESS_TOKEN = serializers.CharField(required=False)
-    REFRESH_TOKEN = serializers.CharField(required=False)
-
-    def validate(self, attrs):
-        access_token = attrs.get('ACCESS_TOKEN')
-        refresh_token = attrs.get('REFRESH_TOKEN')
-        
-        if not (access_token and refresh_token):
-            raise serializers.ValidationError("Access token and refresh token are required.")
-        
-        # Validate tokens if needed
-        
-        return attrs

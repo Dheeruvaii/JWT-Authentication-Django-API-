@@ -14,7 +14,6 @@ router.register(r'logout', LogoutView, basename='logout')
 
 urlpatterns = [
     path('',include(router.urls)),
-    path('get-cookies/', get_tokens, name='get_cookies'),
 
 
     # path('api/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
