@@ -26,8 +26,13 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
     def validate(self, attrs):
+        # Check if 'email' is in the request data
+        email = attrs.get('email')
+        if not email:
+            raise serializers.ValidationError("Email is required.")
         data = super().validate(attrs)
         return data
+    
     
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField(max_length=255)

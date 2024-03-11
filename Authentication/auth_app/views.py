@@ -14,7 +14,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny ,IsAuthenticated
 from rest_framework.decorators import api_view
-from .serializer import CookieSerializer
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
@@ -81,47 +80,38 @@ class RegisterViewSet(viewsets.ModelViewSet):
 
 
 
-class LoginViewSet(ViewSet):
-    """
-    This class is for login and also sets the cookies in the user's browser
-    """
+# class LoginViewSet(ViewSet):
+#     """
+#     This class is for login and also sets the cookies in the user's browser
+#     """
+#     serializer_class = CustomTokenObtainPairSerializer
+
+#     def create(self, request):
+#         serializer = self.serializer_class(data=request.data)
+#         serializer.is_valid()
+#         serializer.save()
+#         return Response ({ 
+#              'message':"User Logged in Successfully",
+#             'data':serializer.data
+#             })
+  
+class LoginAPIView(APIView):
     serializer_class = CustomTokenObtainPairSerializer
 
-    def create(self, request):
+    def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            response = Response()
-            data = serializer.data
+        if serializer.is_valid():
+            tokens = serializer.validated_data
+            return Response({
+                'message': 'Login successful',
+                'tokens': tokens
+            }, status=status.HTTP_200_OK)
+        else:
+            # If serializer validation fails, return the errors
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
 
-            response.set_cookie(
-                key='REFRESH_TOKEN',
-                value=(data['refresh']),
-                domain='.localhost.com',
-                samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-                expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
-                secure=False,
-                httponly=True,
-            )
-            response.set_cookie(
-                key='ACCESS_TOKEN',
-                value=(data['access']),
-                domain='.localhost.com',
-                samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-                expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
-                secure=False,
-                httponly=True,
-            )
-            response['X-CSRFToken'] = csrf.get_token(request)
-            response.data = {
-                'status': 'successful',
-                'data': data,
-                'message': 'Login successful. Take token from cookies'
-            }
-            return response
-
-        return Response(data=serializer.data, status=status.HTTP_400_BAD_REQUEST)
-
-
+        
 class LogoutView(viewsets.ViewSet):
     serializer_class=LogoutSerializer
     # permission_classes = (permissions.IsAuthenticated,)
@@ -132,4 +122,47 @@ class LogoutView(viewsets.ViewSet):
         token = RefreshToken(request.data.get('refresh_token'))
         # token.blacklist()
         return Response({'message': 'User logged out successfully'},status=status.HTTP_204_NO_CONTENT)
+    
 
+    
+
+"""
+    This class is for login and also set the cookies in user browser
+  
+class LoginAPIView(APIView):
+    
+    serializer_class = CustomTokenObtainPairSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Get tokens from serializer data
+        tokens = serializer.validated_data
+        
+        # Set cookies in the response
+        response = Response({
+            'message': "User Logged in Successfully",
+            'data': serializer.data
+        })
+        response.set_cookie(
+            key='REFRESH_TOKEN',
+            value=tokens['refresh'],
+            domain='.localhost.com',
+            samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+            expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+            secure=False,
+            httponly=True,
+        )
+        response.set_cookie(
+            key='ACCESS_TOKEN',
+            value=tokens['access'],
+            domain='.localhost.com',
+            samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+            expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+            secure=False,
+            httponly=True,
+        )
+        return response
+
+           """   
