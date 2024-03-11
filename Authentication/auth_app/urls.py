@@ -1,5 +1,5 @@
 from django.urls import path,include
-from .views import RegisterViewSet,LoginViewSet,LogoutView
+from .views import RegisterViewSet,LoginViewSet,LogoutView,get_tokens
 from rest_framework.routers import DefaultRouter
 
 from rest_framework_simplejwt.views import (
@@ -14,6 +14,8 @@ router.register(r'logout', LogoutView, basename='logout')
 
 urlpatterns = [
     path('',include(router.urls)),
+    path('get-cookies/', get_tokens, name='get_cookies'),
+
 
     # path('api/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     # path('api/login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
