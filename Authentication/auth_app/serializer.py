@@ -36,8 +36,6 @@ class LoginSerializer(serializers.ModelSerializer):
         user = auth.authenticate(email = email, password = password)
         try:
             user_data = UserData.objects.get(email=email)
-            # print(user_data.id)
-            # org_id = O
 
         except:
             raise serializers.ValidationError({'status': 'failed', 'message': 'enter valid email'})
@@ -56,7 +54,26 @@ class LoginSerializer(serializers.ModelSerializer):
             'access': access_token
             }
 
-    
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField(max_length=255)
+
+    def validate(self, attrs):
+        self.token = attrs['refresh']
+        return attrs
+
+    def save(self, **kwargs):
+        try:
+            RefreshToken(self.token).blacklist()
+        except TokenError:
+            serializers.ValidationError({
+                'status': 'failed',
+                'message': 'Bad refresh token'
+            })
+
+
+"""
+builtin approach to generate tokens
 
 # class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 #     @classmethod
@@ -75,22 +92,10 @@ class LoginSerializer(serializers.ModelSerializer):
 
 # class LogoutSerializer(serializers.Serializer):
 #     refresh_token = serializers.CharField(required=True)
+"""
 
-class LogoutSerializer(serializers.Serializer):
-    refresh = serializers.CharField(max_length=255)
 
-    def validate(self, attrs):
-        self.token = attrs['refresh']
-        return attrs
 
-    def save(self, **kwargs):
-        try:
-            RefreshToken(self.token)
-        except TokenError:
-            serializers.ValidationError({
-                'status': 'failed',
-                'message': 'Bad refresh token'
-            })
 
 
 
