@@ -117,23 +117,24 @@ class LogoutAPIView(APIView):
     def post(self, request):
         serializer = LogoutSerializer(data=request.data)
         if serializer.is_valid():
-            try:
-                # Extract the refresh token from the validated data
-                refresh_token = serializer.validated_data['refresh']
+            # try:
+            #     # Extract the refresh token from the validated data
+            #     refresh_token = serializer.validated_data['refresh']
                 
-                # Blacklist the refresh token
-                token = RefreshToken(refresh_token)
-                # token.blacklist()
+            #     # Blacklist the refresh token
+            #     token = RefreshToken(refresh_token)
+            #     # return token
+            #     token.blacklist()
 
-                return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
-            except TokenError:
-                return Response({'message': 'Bad refresh token'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
+        # `except TokenError:
+        #         return Response({'message': 'Bad refresh token'}, status=status.HTTP_400_BAD_REQUEST)
+        # else:
+        #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
-"""
-    This class is for login and also set the cookies in user browser
+    """
+        This class is for login and also set the cookies in user browser
   
 class LoginAPIView(APIView):
     
@@ -171,4 +172,4 @@ class LoginAPIView(APIView):
         )
         return response
 
-           """   
+        """   
