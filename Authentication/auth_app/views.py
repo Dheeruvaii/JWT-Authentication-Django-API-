@@ -22,6 +22,7 @@ from django.middleware import csrf
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
+from rest_framework_simplejwt.tokens import AccessToken
 
 
 class RegisterViewSet(viewsets.ModelViewSet):
@@ -82,30 +83,6 @@ class RegisterViewSet(viewsets.ModelViewSet):
     
 
 
-
-        
-class LogoutAPIView(APIView):
-    def post(self, request):
-        serializer = LogoutSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                # Extract the refresh token from the validated data
-                refresh_token = serializer.validated_data['refresh']
-                
-                # Blacklist the refresh token
-                token = RefreshToken(refresh_token)
-                token.blacklist()
-
-                return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
-            except TokenError:
-                return Response({'message': 'Bad refresh token'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-
-    """
-        This class is for login and also set the cookies in user browser
-        """
 class LoginAPIView(APIView):
     
     serializer_class = LoginSerializer
@@ -120,7 +97,7 @@ class LoginAPIView(APIView):
         # Set cookies in the response
         response = Response({
             'message': "User Logged in Successfully",
-            'data': serializer.data  # This line might not be necessary if you're not using serializer data elsewhere
+            'data': serializer.data  
         })
         response.set_cookie(
             key='REFRESH_TOKEN',
@@ -142,10 +119,48 @@ class LoginAPIView(APIView):
         )
         return response
 
+        
+
+class LogoutViewSet(viewsets.ViewSet):
+    """
+    ViewSet for logging out users and removing cookies from their browser.
+    """
+
+    # permission_classes = [IsAuthenticated]
+    serializer_class = LogoutSerializer
+
+    def create(self, request):
+        token_cookie = request.COOKIES.get('ACCESS_TOKEN')
+
+        if token_cookie:
+            try:
+                # Assuming AccessToken and verify are defined elsewhere
+                access_token = AccessToken(token_cookie)
+                access_token.verify()
+                response = Response()
+                response.delete_cookie(
+                    'REFRESH_TOKEN', domain='.localhost.com')
+                response.delete_cookie('ACCESS_TOKEN', domain='.localhost.com')
+
+                response.data = {
+                    'status': 'Successfull',
+                    'message': 'User logged out successfully'
+                }
+                return response
+
+            except Exception as e:
+                return Response({'detail': 'Token is invalid.'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'detail': 'Token cookie is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+    """
+        This class is for login and also set the cookies in user browser
+        """
+
    
-   
-   """
-   this methods for builtin customtokenobtain class 
+"""
+this methods for builtin customtokenobtain class 
 
 
    # class LoginAPIView(APIView):
