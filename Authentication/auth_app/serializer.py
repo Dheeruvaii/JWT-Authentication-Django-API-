@@ -34,6 +34,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
     
 
+# class LogoutSerializer(serializers.Serializer):
+#     refresh_token = serializers.CharField(required=True)
+
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField(max_length=255)
 
