@@ -83,35 +83,6 @@ class RegisterViewSet(viewsets.ModelViewSet):
 
 
 
-# class LoginViewSet(ViewSet):
-#     """
-#     This class is for login and also sets the cookies in the user's browser
-#     """
-#     serializer_class = CustomTokenObtainPairSerializer
-
-#     def create(self, request):
-#         serializer = self.serializer_class(data=request.data)
-#         serializer.is_valid()
-#         serializer.save()
-#         return Response ({ 
-#              'message':"User Logged in Successfully",
-#             'data':serializer.data
-#             })
-  
-# class LoginAPIView(APIView):
-#     serializer_class = CustomTokenObtainPairSerializer
-
-#     def post(self, request):
-#         serializer = self.serializer_class(data=request.data)
-#         if serializer.is_valid():
-#             tokens = serializer.validated_data
-#             return Response({
-#                 'message': 'Login successful',
-#                 'tokens': tokens
-#             }, status=status.HTTP_200_OK)
-#         else:
-#             # If serializer validation fails, return the errors
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 class LogoutAPIView(APIView):
     def post(self, request):
@@ -172,3 +143,23 @@ class LoginAPIView(APIView):
         return response
 
    
+   
+   """
+   this methods for builtin customtokenobtain class 
+
+
+   # class LoginAPIView(APIView):
+#     serializer_class = CustomTokenObtainPairSerializer
+
+#     def post(self, request):
+#         serializer = self.serializer_class(data=request.data)
+#         if serializer.is_valid():
+#             tokens = serializer.validated_data
+#             return Response({
+#                 'message': 'Login successful',
+#                 'tokens': tokens
+#             }, status=status.HTTP_200_OK)
+#         else:
+#             # If serializer validation fails, return the errors
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+   """
