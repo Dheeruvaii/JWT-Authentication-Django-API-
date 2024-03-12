@@ -5,7 +5,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializer import UserSerializer,CustomTokenObtainPairSerializer,LogoutSerializer
+from .serializer import UserSerializer,LogoutSerializer,LoginSerializer
 from rest_framework.response import Response
 from rest_framework import viewsets
 from .models import *
@@ -98,47 +98,46 @@ class RegisterViewSet(viewsets.ModelViewSet):
 #             'data':serializer.data
 #             })
   
-class LoginAPIView(APIView):
-    serializer_class = CustomTokenObtainPairSerializer
+# class LoginAPIView(APIView):
+#     serializer_class = CustomTokenObtainPairSerializer
 
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            tokens = serializer.validated_data
-            return Response({
-                'message': 'Login successful',
-                'tokens': tokens
-            }, status=status.HTTP_200_OK)
-        else:
-            # If serializer validation fails, return the errors
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def post(self, request):
+#         serializer = self.serializer_class(data=request.data)
+#         if serializer.is_valid():
+#             tokens = serializer.validated_data
+#             return Response({
+#                 'message': 'Login successful',
+#                 'tokens': tokens
+#             }, status=status.HTTP_200_OK)
+#         else:
+#             # If serializer validation fails, return the errors
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 class LogoutAPIView(APIView):
     def post(self, request):
         serializer = LogoutSerializer(data=request.data)
         if serializer.is_valid():
-            # try:
-            #     # Extract the refresh token from the validated data
-            #     refresh_token = serializer.validated_data['refresh']
+            try:
+                # Extract the refresh token from the validated data
+                refresh_token = serializer.validated_data['refresh']
                 
-            #     # Blacklist the refresh token
-            #     token = RefreshToken(refresh_token)
-            #     # return token
-            #     token.blacklist()
+                # Blacklist the refresh token
+                token = RefreshToken(refresh_token)
+                token.blacklist()
 
-            return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
-        # `except TokenError:
-        #         return Response({'message': 'Bad refresh token'}, status=status.HTTP_400_BAD_REQUEST)
-        # else:
-        #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
+            except TokenError:
+                return Response({'message': 'Bad refresh token'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
     """
         This class is for login and also set the cookies in user browser
-  
+        """
 class LoginAPIView(APIView):
     
-    serializer_class = CustomTokenObtainPairSerializer
+    serializer_class = LoginSerializer
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -150,14 +149,14 @@ class LoginAPIView(APIView):
         # Set cookies in the response
         response = Response({
             'message': "User Logged in Successfully",
-            'data': serializer.data
+            'data': serializer.data  # This line might not be necessary if you're not using serializer data elsewhere
         })
         response.set_cookie(
             key='REFRESH_TOKEN',
             value=tokens['refresh'],
             domain='.localhost.com',
             samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-            expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+            expires=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],  # Use refresh token lifetime here
             secure=False,
             httponly=True,
         )
@@ -172,4 +171,4 @@ class LoginAPIView(APIView):
         )
         return response
 
-        """   
+   

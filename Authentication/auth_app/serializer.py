@@ -4,6 +4,8 @@ from .models import UserData
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
+from django.contrib import auth
+from .utils import generate_token
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -18,20 +20,57 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user 
     
+class LoginSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only = True)
+    refresh = serializers.CharField(read_only =True)
+    access = serializers.CharField(read_only =True)
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        return token
+    class Meta:
+        model = UserData
+        fields = ['email', 'password', 'refresh', 'access']
 
     def validate(self, attrs):
-        # Check if 'email' is in the request data
-        email = attrs.get('email')
-        if not email:
-            raise serializers.ValidationError("Email is required.")
-        data = super().validate(attrs)
-        return data
+        email = attrs.get('email', '')
+        password = attrs.get('password', '')
+        user = auth.authenticate(email = email, password = password)
+        try:
+            user_data = UserData.objects.get(email=email)
+            # print(user_data.id)
+            # org_id = O
+
+        except:
+            raise serializers.ValidationError({'status': 'failed', 'message': 'enter valid email'})
+        if not user_data.is_active:
+            raise AuthenticationFailed({'status': 'failed', 'message': 'Account is not active.'})
+        if not user:
+            raise AuthenticationFailed({'status': 'failed', 'message': 'Invalid credentials, Try Again.'})
+
+        tokens = generate_token(user)
+        refresh_token = tokens['refresh']
+        access_token = tokens['access']
+        
+        return {
+            'email': user.email,
+            'refresh': refresh_token,
+            'access': access_token
+            }
+
+    
+
+# class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+#     @classmethod
+#     def get_token(cls, user):
+#         token = super().get_token(user)
+#         return token
+
+#     def validate(self, attrs):
+#         # Check if 'email' is in the request data
+#         email = attrs.get('email')
+#         if not email:
+#             raise serializers.ValidationError("Email is required.")
+#         data = super().validate(attrs)
+#         return data
     
 
 # class LogoutSerializer(serializers.Serializer):
